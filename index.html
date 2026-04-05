@@ -938,70 +938,6 @@ body.sidebar-open .main { margin-left: var(--sidebar-w); }
 
 .chat-send svg { width: 16px; height: 16px; }
 
-/* API key setup */
-.api-setup {
-  padding: 1.5rem;
-  background: var(--cream-dark);
-  border: 1px solid var(--border-med);
-  margin: 1rem;
-}
-
-.api-setup-title {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 0.6rem;
-}
-
-.api-setup p {
-  font-size: 0.82rem;
-  color: var(--ink-soft);
-  line-height: 1.6;
-  margin-bottom: 0.8rem;
-}
-
-.api-input-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.api-key-input {
-  flex: 1;
-  border: 1px solid var(--border-med);
-  padding: 0.55rem 0.8rem;
-  font-family: 'DM Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--ink);
-  background: white;
-}
-
-.api-key-input:focus { outline: none; border-color: var(--gold); }
-
-.api-save-btn {
-  background: var(--ink);
-  border: none;
-  color: var(--cream);
-  font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.55rem 1rem;
-  cursor: pointer;
-  transition: background var(--transition);
-  white-space: nowrap;
-}
-
-.api-save-btn:hover { background: var(--gold); color: var(--ink); }
-
-.api-note {
-  font-size: 0.72rem;
-  color: var(--ink-muted);
-  margin-top: 0.6rem;
-  font-style: italic;
-}
-
 /* ═══════════════════════════════════════════
    LANDING / HOME
 ═══════════════════════════════════════════ */
@@ -1170,15 +1106,6 @@ body.sidebar-open .reading-progress { left: var(--sidebar-w); }
   </div>
 
   <div class="chat-footer">
-    <div id="apiSetup" class="api-setup" style="display:none;">
-      <div class="api-setup-title">Anthropic API Key Required</div>
-      <p>Enter your API key from <strong>console.anthropic.com</strong> to enable the AI discussion feature. Your key is stored only in your browser and sent directly to Anthropic's API.</p>
-      <div class="api-input-row">
-        <input type="password" class="api-key-input" id="apiKeyInput" placeholder="sk-ant-...">
-        <button class="api-save-btn" onclick="saveApiKey()">Save Key</button>
-      </div>
-      <p class="api-note">To deploy this for others, replace the client-side key with a backend proxy — see README.md.</p>
-    </div>
     <div class="chat-input-row" id="chatInputRow">
       <textarea class="chat-input" id="chatInput" placeholder="Ask a question about this chapter..." rows="1" onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
       <button class="chat-send" id="chatSendBtn" onclick="sendMessage()" aria-label="Send">
@@ -1210,7 +1137,6 @@ document.addEventListener('DOMContentLoaded', () => {
   buildChapterGrid();
   buildChapterViews();
   initInteractives();
-  initApiKey();
   initProgressBar();
   
   if (sidebarOpen) {
@@ -1363,7 +1289,6 @@ function openChat(chapterId) {
   document.getElementById('main').classList.add('chat-open');
   document.getElementById('chatToggle').classList.add('active');
   updateChatContext();
-  checkApiKey();
   setTimeout(() => document.getElementById('chatInput')?.focus(), 300);
 }
 
@@ -1431,36 +1356,6 @@ function sendSuggestion(btn) {
 }
 
 /* ══════════════════════════════════════════════════════
-   API KEY
-══════════════════════════════════════════════════════ */
-function initApiKey() {
-  // Check for stored key
-}
-
-function checkApiKey() {
-  const key = localStorage.getItem('anthropic_key');
-  const setupEl = document.getElementById('apiSetup');
-  const inputRow = document.getElementById('chatInputRow');
-  if (!key) {
-    setupEl.style.display = 'block';
-    inputRow.style.display = 'none';
-  } else {
-    setupEl.style.display = 'none';
-    inputRow.style.display = 'flex';
-  }
-}
-
-function saveApiKey() {
-  const val = document.getElementById('apiKeyInput').value.trim();
-  if (val && val.startsWith('sk-')) {
-    localStorage.setItem('anthropic_key', val);
-    checkApiKey();
-  } else {
-    alert('Please enter a valid Anthropic API key (starts with sk-ant- or sk-)');
-  }
-}
-
-/* ══════════════════════════════════════════════════════
    CHAT MESSAGES
 ══════════════════════════════════════════════════════ */
 function handleInputKey(e) {
@@ -1480,63 +1375,55 @@ async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
   if (!text) return;
-  
-  const apiKey = localStorage.getItem('anthropic_key');
-  if (!apiKey) { checkApiKey(); openChat(); return; }
-  
+
   // Clear empty state
   const msgs = document.getElementById('chatMessages');
   const empty = msgs.querySelector('.chat-empty');
   if (empty) empty.remove();
-  
+
   // Append user message
   appendMessage('user', text);
   input.value = '';
   input.style.height = 'auto';
   conversationHistory.push({ role: 'user', content: text });
-  
+
   // Show typing
   const typingEl = showTyping();
   isLoading = true;
   document.getElementById('chatSendBtn').disabled = true;
-  
+
   // Build system prompt
   const systemPrompt = buildSystemPrompt();
-  
+
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 1024,
         system: systemPrompt,
         messages: conversationHistory
       })
     });
-    
+
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.error?.message || `API error ${response.status}`);
+      throw new Error(err.error?.message || `Error ${response.status}`);
     }
-    
+
     const data = await response.json();
     const reply = data.content?.[0]?.text || 'No response received.';
-    
+
     typingEl.remove();
     appendMessage('assistant', reply);
     conversationHistory.push({ role: 'assistant', content: reply });
-    
+
   } catch (err) {
     typingEl.remove();
-    appendMessage('assistant', `I encountered an error: ${err.message}. Please check your API key in the chat settings.`);
+    appendMessage('assistant', `I encountered an error: ${err.message}. Please try again in a moment.`);
   }
-  
+
   isLoading = false;
   document.getElementById('chatSendBtn').disabled = false;
 }
@@ -1622,7 +1509,6 @@ function initProgressBar() {
    MAKE SENDSUGGESTION GLOBAL
 ══════════════════════════════════════════════════════ */
 window.sendSuggestion = sendSuggestion;
-window.saveApiKey = saveApiKey;
 
 /* ══════════════════════════════════════════════════════
    INTERACTIVE ELEMENTS
