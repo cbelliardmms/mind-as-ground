@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind as Ground — An Idealism Explainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Mono:wght@300;400;500&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --cream: #f4efe6;
+  --cream-dark: #ede6d8;
+  --ink: #18150f;
+  --ink-soft: #3a3020;
+  --ink-muted: #7a6e5a;
+  --ink-faint: #b5a990;
+  --gold: #9a7b2e;
+  --gold-light: #c4a84a;
+  --gold-pale: rgba(154,123,46,0.08);
+  --rust: #7d3020;
+  --rust-pale: rgba(125,48,32,0.07);
+  --slate: #304050;
+  --slate-light: #8fa8bc;
+  --slate-pale: rgba(48,64,80,0.07);
+  --border: rgba(24,21,15,0.1);
+  --border-med: rgba(24,21,15,0.18);
+  --border-strong: rgba(24,21,15,0.28);
+  --sidebar-w: 280px;
+  --chat-w: 380px;
+  --header-h: 56px;
+  --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.85;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--cream-dark); }
+::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════
+   HEADER BAR
+═══════════════════════════════════════════ */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.2rem;
+  z-index: 100;
+  border-bottom: 2px solid var(--gold);
+}
+
+.header-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--cream);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.header-logo em { font-style: italic; color: var(--gold-light); }
+
+.header-spacer { flex: 1; }
+
+.header-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.header-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--gold-light);
+  color: var(--gold-light);
+}
+
+.header-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  width: var(--sidebar-w);
+  height: calc(100vh - var(--header-h));
+  background: var(--cream-dark);
+  border-right: 1px solid var(--border-med);
+  overflow-y: auto;
+  z-index: 90;
+  transform: translateX(-100%);
+  transition: transform var(--transition);
+}
+
+.sidebar.open { transform: translateX(0); }
+
+.sidebar-inner { padding: 1.5rem 0 3rem; }
+
+.sidebar-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0 1.2rem;
+  margin-bottom: 0.8rem;
+}
+
+.sidebar-item {
+  display: block;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all var(--transition);
+  text-decoration: none;
+}
+
+.sidebar-item:hover {
+  background: rgba(154,123,46,0.06);
+  border-left-color: var(--gold-light);
+}
+
+.sidebar-item.active {
+  background: rgba(154,123,46,0.1);
+  border-left-color: var(--gold);
+}
+
+.sidebar-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.15rem;
+}
+
+.sidebar-title {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+
+.sidebar-item.active .sidebar-title { color: var(--gold); font-weight: 600; }
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.8rem 1.2rem;
+}
+
+/* ═══════════════════════════════════════════
+   MAIN CONTENT AREA
+═══════════════════════════════════════════ */
+.main {
+  margin-left: 0;
+  margin-top: var(--header-h);
+  transition: margin-left var(--transition), margin-right var(--transition);
+  min-height: calc(100vh - var(--header-h));
+}
+
+body.sidebar-open .main { margin-left: var(--sidebar-w); }
+
+.main.chat-open { margin-right: var(--chat-w); }
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero {
+  padding: 5rem 4rem 4rem;
+  border-bottom: 1px solid var(--border-med);
+  position: relative;
+  overflow: hidden;
+  max-width: 860px;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--rust) 0%, var(--gold) 50%, var(--slate) 100%);
+}
+
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 1.5rem;
+}
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+
+.hero h1 em { font-style: italic; color: var(--gold); }
+
+.hero-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--ink-muted);
+  margin-top: 1rem;
+  max-width: 520px;
+  line-height: 1.5;
+}
+
+.hero-meta {
+  margin-top: 2rem;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.hero-stat {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.hero-stat strong {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.1rem;
+}
+
+/* ═══════════════════════════════════════════
+   CHAPTER VIEW
+═══════════════════════════════════════════ */
+.chapter-view {
+  display: none;
+  max-width: 780px;
+  padding: 3.5rem 4rem 6rem;
+}
+
+.chapter-view.active { display: block; }
+
+.chapter-header {
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-med);
+}
+
+.chapter-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.chapter-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.chapter-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.chapter-view h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 2.8rem;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.chapter-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ink-muted);
+}
+
+/* ── BODY TEXT ── */
+.chapter-body p {
+  margin-bottom: 1.5rem;
+  color: var(--ink-soft);
+}
+
+.chapter-body h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 1.6rem;
+  color: var(--ink);
+  margin: 3rem 0 1rem;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+
+.chapter-body strong { font-weight: 600; color: var(--ink); }
+
+/* ── PULL QUOTES ── */
+.chapter-body .pullquote {
+  margin: 2.5rem 0;
+  padding: 1.5rem 2rem;
+  border-left: 3px solid var(--gold);
+  background: var(--gold-pale);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.3rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.chapter-body .pullquote cite {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-style: normal;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-top: 0.8rem;
+}
+
+/* ── MATH BLOCKS ── */
+.math-block {
+  margin: 2.5rem 0;
+  border: 1px solid var(--border-med);
+  overflow: hidden;
+}
+
+.math-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: var(--slate);
+  padding: 0.55rem 1.2rem;
+}
+
+.math-equation {
+  padding: 1.8rem;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 1.1rem;
+  background: white;
+  color: var(--slate);
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.math-key {
+  padding: 1.2rem 1.5rem;
+  background: var(--slate-pale);
+}
+
+.math-key-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 0.7rem;
+}
+
+.math-key dl {
+  display: grid;
+  grid-template-columns: minmax(80px, auto) 1fr;
+  gap: 0.35rem 1.2rem;
+  font-size: 0.88rem;
+}
+
+.math-key dt {
+  font-family: 'DM Mono', monospace;
+  color: var(--slate);
+  font-size: 0.82rem;
+  align-self: start;
+  padding-top: 0.05rem;
+}
+
+.math-key dd { color: var(--ink-soft); }
+
+.math-plain {
+  padding: 1rem 1.5rem;
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--border);
+  line-height: 1.7;
+}
+
+/* ── FRAMEWORK TABLE ── */
+.table-wrapper { overflow-x: auto; margin: 2rem 0; }
+
+.framework-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.framework-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0.8rem 1rem;
+  background: var(--ink);
+  color: var(--cream);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  white-space: nowrap;
+}
+
+.framework-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.55;
+}
+
+.framework-table td:first-child {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--slate);
+  white-space: nowrap;
+}
+
+.framework-table tr:nth-child(even) td { background: rgba(255,255,255,0.45); }
+.framework-table tr.highlight td { background: var(--gold-pale); }
+.framework-table tr.highlight td:first-child { color: var(--gold); }
+
+/* ── GLOSSARY ── */
+.glossary-grid { display: flex; flex-direction: column; gap: 0; }
+
+.g-entry {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--border);
+  align-items: baseline;
+}
+
+.g-term {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--gold);
+  line-height: 1.4;
+}
+
+.g-def { font-size: 0.9rem; line-height: 1.7; color: var(--ink-soft); }
+
+/* ── INTERACTIVE BLOCKS (shared) ── */
+.interactive-block .interactive-body {
+  padding: 0;
+  background: white;
+}
+
+.interactive-block canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.interactive-controls {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--slate-pale);
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.interactive-btn {
+  background: white;
+  border: 1px solid var(--border-strong);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  transition: all var(--transition);
+}
+
+.interactive-btn:hover {
+  background: var(--gold-pale);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.interactive-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: white;
+}
+
+.interactive-caption {
+  padding: 0.8rem 1.2rem;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border);
+  line-height: 1.6;
+}
+
+/* ── LOG SCALE ── */
+.log-scale-viewport {
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-faint) var(--cream-dark);
+}
+
+.log-scale-viewport:active { cursor: grabbing; }
+
+.log-scale-viewport canvas {
+  display: block;
+  height: 220px;
+  width: auto;
+}
+
+.log-scale-indicators {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.6rem 1.2rem;
+  border-top: 1px solid var(--border);
+  background: var(--cream-dark);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.log-indicator {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.log-indicator.observed {
+  background: var(--gold-pale);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+.log-indicator.observed:hover { background: rgba(154,123,46,0.18); }
+
+.log-indicator.predicted {
+  background: var(--rust-pale);
+  border: 1px solid var(--rust);
+  color: var(--rust);
+}
+
+.log-indicator.predicted:hover { background: rgba(125,48,32,0.15); }
+
+.log-indicator.gap {
+  color: var(--ink-muted);
+  font-style: italic;
+  cursor: default;
+  border: none;
+  background: none;
+}
+
+/* ── FRAMEWORK DIAGRAM ── */
+#framework-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: opacity 0.15s ease;
+}
+
+#framework-svg.fading { opacity: 0; }
+
+/* ── CHAPTER NAV ── */
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-med);
+}
+
+.chapter-nav-btn {
+  background: none;
+  border: 1px solid var(--border-strong);
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chapter-nav-btn:hover {
+  background: var(--gold-pale);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.chapter-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── DISCUSS BUTTON ── */
+.discuss-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ink);
+  border: none;
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.7rem 1.2rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  margin: 2.5rem 0;
+}
+
+.discuss-btn:hover { background: var(--gold); color: var(--ink); }
+
+.discuss-btn svg { width: 14px; height: 14px; }
+
+/* ═══════════════════════════════════════════
+   CHAT PANEL
+═══════════════════════════════════════════ */
+.chat-panel {
+  position: fixed;
+  top: var(--header-h);
+  right: 0;
+  width: var(--chat-w);
+  height: calc(100vh - var(--header-h));
+  background: white;
+  border-left: 1px solid var(--border-med);
+  display: flex;
+  flex-direction: column;
+  z-index: 90;
+  transform: translateX(100%);
+  transition: transform var(--transition);
+  box-shadow: -4px 0 20px rgba(0,0,0,0.06);
+}
+
+.chat-panel.open { transform: translateX(0); }
+
+.chat-header {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--cream-dark);
+  flex-shrink: 0;
+}
+
+.chat-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.chat-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.chat-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  transition: color var(--transition);
+}
+
+.chat-close:hover { color: var(--ink); }
+
+.chat-context {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chat-message {
+  max-width: 100%;
+  animation: fadeUp 0.2s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-message.user {
+  align-self: flex-end;
+}
+
+.chat-message.assistant {
+  align-self: flex-start;
+}
+
+.msg-bubble {
+  padding: 0.8rem 1rem;
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.chat-message.user .msg-bubble {
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 12px 12px 2px 12px;
+  max-width: 88%;
+}
+
+.chat-message.assistant .msg-bubble {
+  background: var(--cream-dark);
+  color: var(--ink-soft);
+  border-radius: 2px 12px 12px 12px;
+  border: 1px solid var(--border);
+}
+
+.msg-bubble p { margin-bottom: 0.6rem; }
+.msg-bubble p:last-child { margin-bottom: 0; }
+
+.msg-bubble strong { font-weight: 600; color: inherit; }
+.msg-bubble em { font-style: italic; }
+
+.chat-message.assistant .msg-bubble code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82em;
+  background: rgba(0,0,0,0.06);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 0.8rem 1rem;
+  background: var(--cream-dark);
+  border: 1px solid var(--border);
+  border-radius: 2px 12px 12px 12px;
+  width: fit-content;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--ink-faint);
+  border-radius: 50%;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+.chat-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--ink-muted);
+}
+
+.chat-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+  opacity: 0.4;
+}
+
+.chat-empty p {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.chat-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.chat-suggestion {
+  background: var(--gold-pale);
+  border: 1px solid rgba(154,123,46,0.2);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition);
+  border-radius: 4px;
+  font-style: italic;
+}
+
+.chat-suggestion:hover {
+  background: rgba(154,123,46,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.chat-footer {
+  padding: 0.8rem 1rem;
+  border-top: 1px solid var(--border);
+  background: white;
+  flex-shrink: 0;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.chat-input {
+  flex: 1;
+  border: 1px solid var(--border-med);
+  padding: 0.65rem 0.9rem;
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: var(--cream);
+  resize: none;
+  min-height: 42px;
+  max-height: 140px;
+  overflow-y: auto;
+  line-height: 1.5;
+  transition: border-color var(--transition);
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.chat-input::placeholder { color: var(--ink-faint); font-style: italic; }
+
+.chat-send {
+  background: var(--ink);
+  border: none;
+  color: var(--cream);
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--transition);
+}
+
+.chat-send:hover { background: var(--gold); color: var(--ink); }
+.chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.chat-send svg { width: 16px; height: 16px; }
+
+/* API key setup */
+.api-setup {
+  padding: 1.5rem;
+  background: var(--cream-dark);
+  border: 1px solid var(--border-med);
+  margin: 1rem;
+}
+
+.api-setup-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+}
+
+.api-setup p {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
+}
+
+.api-input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.api-key-input {
+  flex: 1;
+  border: 1px solid var(--border-med);
+  padding: 0.55rem 0.8rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--ink);
+  background: white;
+}
+
+.api-key-input:focus { outline: none; border-color: var(--gold); }
+
+.api-save-btn {
+  background: var(--ink);
+  border: none;
+  color: var(--cream);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  transition: background var(--transition);
+  white-space: nowrap;
+}
+
+.api-save-btn:hover { background: var(--gold); color: var(--ink); }
+
+.api-note {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  margin-top: 0.6rem;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════
+   LANDING / HOME
+═══════════════════════════════════════════ */
+.home-view { display: block; }
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1px;
+  border: 1px solid var(--border-med);
+  margin: 2.5rem 4rem;
+  background: var(--border-med);
+}
+
+.chapter-card {
+  background: var(--cream);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.chapter-card:hover { background: var(--gold-pale); }
+
+.card-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.card-sub {
+  font-family: 'Source Serif 4', serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════ */
+.reading-progress {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--border);
+  z-index: 89;
+  transition: left var(--transition);
+}
+
+body.sidebar-open .reading-progress { left: var(--sidebar-w); }
+
+.reading-progress-bar {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.1s linear;
+  width: 0%;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .hero, .chapter-view { padding: 2.5rem 1.5rem 4rem; }
+  .chapter-grid { margin: 1.5rem; }
+  :root { --chat-w: min(380px, 100vw); }
+}
+
+@media (max-width: 600px) {
+  .g-entry { grid-template-columns: 1fr; }
+  .g-term { border-bottom: none; padding-bottom: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- HEADER                                         -->
+<!-- ══════════════════════════════════════════════ -->
+<header class="header">
+  <button class="header-btn" id="sidebarToggle" aria-label="Toggle navigation">☰</button>
+  <div class="header-logo">Mind as <em>Ground</em></div>
+  <div class="header-spacer"></div>
+  <button class="header-btn" id="chatToggle">Discuss ◈</button>
+</header>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- READING PROGRESS                               -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="reading-progress">
+  <div class="reading-progress-bar" id="progressBar"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- SIDEBAR                                        -->
+<!-- ══════════════════════════════════════════════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-inner">
+    <div class="sidebar-label">Chapters</div>
+    <div id="sidebarNav"></div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- MAIN                                           -->
+<!-- ══════════════════════════════════════════════ -->
+<main class="main" id="main">
+
+  <!-- HOME VIEW -->
+  <div id="homeView" class="home-view">
+    <div class="hero">
+      <div class="hero-eyebrow">A personal inquiry into metaphysics &amp; cosmology</div>
+      <h1>Mind as <em>Ground</em></h1>
+      <p class="hero-sub">An extended exploration of idealism, consciousness, dark energy, and the structure of reality — written to be read slowly, across days, with nothing smoothed over.</p>
+      <div class="hero-meta">
+        <div class="hero-stat"><strong>12</strong> chapters</div>
+        <div class="hero-stat"><strong>~45,000</strong> words</div>
+        <div class="hero-stat"><strong>5</strong> interlocutors</div>
+        <div class="hero-stat"><strong>∞</strong> open questions</div>
+      </div>
+    </div>
+    <div class="chapter-grid" id="chapterGrid"></div>
+  </div>
+
+  <!-- CHAPTER VIEWS (generated by JS) -->
+  <div id="chapterViews"></div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- CHAT PANEL                                     -->
+<!-- ══════════════════════════════════════════════ -->
+<aside class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-top">
+      <span class="chat-title">Discuss this chapter</span>
+      <button class="chat-close" id="chatClose" aria-label="Close chat">×</button>
+    </div>
+    <div class="chat-context" id="chatContext">Select a chapter to begin</div>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-empty">
+      <div class="chat-empty-icon">◈</div>
+      <p>Ask anything about idealism, the physics, the arguments, or the thinkers — your questions will be answered with the full context of what you've been reading.</p>
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="chat-suggestion" onclick="sendSuggestion(this)">What is the single strongest argument for idealism?</button>
+        <button class="chat-suggestion" onclick="sendSuggestion(this)">How does idealism actually explain why the world is consistent for different observers?</button>
+        <button class="chat-suggestion" onclick="sendSuggestion(this)">Could the Hard Problem just be dissolved rather than solved?</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <div id="apiSetup" class="api-setup" style="display:none;">
+      <div class="api-setup-title">Anthropic API Key Required</div>
+      <p>Enter your API key from <strong>console.anthropic.com</strong> to enable the AI discussion feature. Your key is stored only in your browser and sent directly to Anthropic's API.</p>
+      <div class="api-input-row">
+        <input type="password" class="api-key-input" id="apiKeyInput" placeholder="sk-ant-...">
+        <button class="api-save-btn" onclick="saveApiKey()">Save Key</button>
+      </div>
+      <p class="api-note">To deploy this for others, replace the client-side key with a backend proxy — see README.md.</p>
+    </div>
+    <div class="chat-input-row" id="chatInputRow">
+      <textarea class="chat-input" id="chatInput" placeholder="Ask a question about this chapter..." rows="1" onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="chat-send" id="chatSendBtn" onclick="sendMessage()" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<script src="chapters.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════ */
+let currentChapter = null;
+let chatOpen = false;
+let sidebarOpen = window.innerWidth > 900;
+let conversationHistory = [];
+let isLoading = false;
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  buildSidebar();
+  buildChapterGrid();
+  buildChapterViews();
+  initInteractives();
+  initApiKey();
+  initProgressBar();
+  
+  if (sidebarOpen) {
+    document.getElementById('sidebar').classList.add('open');
+    document.body.classList.add('sidebar-open');
+  }
+});
+
+/* ══════════════════════════════════════════════════════
+   BUILD UI
+══════════════════════════════════════════════════════ */
+function buildSidebar() {
+  const nav = document.getElementById('sidebarNav');
+  let html = '';
+  
+  // Home link
+  html += `<div class="sidebar-item active" id="nav-home" onclick="showHome()">
+    <div class="sidebar-num">Home</div>
+    <div class="sidebar-title">Overview &amp; Contents</div>
+  </div>`;
+  html += '<div class="sidebar-divider"></div>';
+  
+  CHAPTERS.forEach((ch, i) => {
+    html += `<div class="sidebar-item" id="nav-${ch.id}" onclick="showChapter('${ch.id}')">
+      <div class="sidebar-num">Chapter ${ch.num}</div>
+      <div class="sidebar-title">${ch.title}</div>
+    </div>`;
+  });
+  
+  nav.innerHTML = html;
+}
+
+function buildChapterGrid() {
+  const grid = document.getElementById('chapterGrid');
+  grid.innerHTML = CHAPTERS.map(ch => `
+    <div class="chapter-card" onclick="showChapter('${ch.id}')">
+      <div class="card-num">Chapter ${ch.num}</div>
+      <div class="card-title">${ch.title}</div>
+      <div class="card-sub">${ch.subtitle}</div>
+    </div>
+  `).join('');
+}
+
+function buildChapterViews() {
+  const container = document.getElementById('chapterViews');
+  container.innerHTML = CHAPTERS.map((ch, i) => {
+    const prevCh = CHAPTERS[i - 1];
+    const nextCh = CHAPTERS[i + 1];
+    
+    return `
+    <div class="chapter-view" id="${ch.id}">
+      <div class="chapter-header">
+        <div class="chapter-eyebrow">
+          <span class="chapter-num">Chapter ${ch.num}</span>
+          <div class="chapter-divider-line"></div>
+        </div>
+        <h2>${ch.title}</h2>
+        <div class="chapter-subtitle">${ch.subtitle}</div>
+      </div>
+      
+      <button class="discuss-btn" onclick="openChat('${ch.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Discuss this chapter
+      </button>
+      
+      <div class="chapter-body">
+        ${ch.content}
+      </div>
+      
+      <div class="chapter-nav">
+        <button class="chapter-nav-btn" onclick="${prevCh ? `showChapter('${prevCh.id}')` : 'showHome()'}" >
+          ← ${prevCh ? prevCh.title : 'Overview'}
+        </button>
+        <button class="chapter-nav-btn" onclick="${nextCh ? `showChapter('${nextCh.id}')` : 'showHome()'}" ${!nextCh ? 'style="opacity:0.3"' : ''}>
+          ${nextCh ? nextCh.title : 'End'} →
+        </button>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════ */
+function showHome() {
+  document.getElementById('homeView').style.display = 'block';
+  document.querySelectorAll('.chapter-view').forEach(v => v.classList.remove('active'));
+  setActiveNav('nav-home');
+  currentChapter = null;
+  window.scrollTo(0, 0);
+  updateChatContext();
+}
+
+function showChapter(id) {
+  document.getElementById('homeView').style.display = 'none';
+  document.querySelectorAll('.chapter-view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  setActiveNav('nav-' + id);
+  currentChapter = CHAPTERS.find(c => c.id === id);
+  updateChatContext();
+  conversationHistory = [];
+  clearChatMessages();
+  
+  // Close sidebar on mobile
+  if (window.innerWidth <= 900) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.body.classList.remove('sidebar-open');
+    sidebarOpen = false;
+  }
+}
+
+function setActiveNav(id) {
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════
+   SIDEBAR TOGGLE
+══════════════════════════════════════════════════════ */
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  sidebarOpen = !sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('open', sidebarOpen);
+  document.body.classList.toggle('sidebar-open', sidebarOpen);
+});
+
+/* ══════════════════════════════════════════════════════
+   CHAT PANEL
+══════════════════════════════════════════════════════ */
+document.getElementById('chatToggle').addEventListener('click', () => toggleChat());
+document.getElementById('chatClose').addEventListener('click', () => closeChat());
+
+function toggleChat() {
+  chatOpen ? closeChat() : openChat(currentChapter?.id);
+}
+
+function openChat(chapterId) {
+  if (chapterId && !currentChapter) {
+    showChapter(chapterId);
+  }
+  chatOpen = true;
+  document.getElementById('chatPanel').classList.add('open');
+  document.getElementById('main').classList.add('chat-open');
+  document.getElementById('chatToggle').classList.add('active');
+  updateChatContext();
+  checkApiKey();
+  setTimeout(() => document.getElementById('chatInput')?.focus(), 300);
+}
+
+function closeChat() {
+  chatOpen = false;
+  document.getElementById('chatPanel').classList.remove('open');
+  document.getElementById('main').classList.remove('chat-open');
+  document.getElementById('chatToggle').classList.remove('active');
+}
+
+function updateChatContext() {
+  const el = document.getElementById('chatContext');
+  if (currentChapter) {
+    el.textContent = `Chapter ${currentChapter.num}: ${currentChapter.title}`;
+  } else {
+    el.textContent = 'General inquiry — select a chapter to focus discussion';
+  }
+}
+
+function clearChatMessages() {
+  const msgs = document.getElementById('chatMessages');
+  msgs.innerHTML = `
+    <div class="chat-empty">
+      <div class="chat-empty-icon">◈</div>
+      <p>Questions about this chapter? Ask anything — the discussion is contextually aware of what you've been reading.</p>
+      <div class="chat-suggestions" id="chatSuggestions">
+        ${getSuggestions()}
+      </div>
+    </div>
+  `;
+}
+
+function getSuggestions() {
+  if (!currentChapter) {
+    return [
+      'What is the single strongest argument for idealism?',
+      'How does idealism explain intersubjective consistency?',
+      'Is there any empirical evidence for idealism?'
+    ].map(s => `<button class="chat-suggestion" onclick="sendSuggestion(this)">${s}</button>`).join('');
+  }
+  
+  const suggestions = {
+    ch0: ['What is the strongest objection to materialism?', 'Is neutral monism secretly a form of idealism?', 'Why is dualism considered mostly dead as a position?'],
+    ch1: ['Explain Kant\'s Copernican revolution in simple terms', 'What separates Kastrup from Berkeley?', 'Is the dissociation model the strongest part of analytic idealism?'],
+    ch2: ['Why can\'t we just say qualia are brain states?', 'Is the zombie argument really coherent?', 'What is Dennett\'s best response to the Hard Problem?'],
+    ch3: ['What would falsify the ΛCDM model?', 'How confident should we be that JWST settled the Hubble tension?', 'Is dark energy more like a field or a property of spacetime?'],
+    ch4: ['Is the Many-Worlds interpretation actually simpler than Copenhagen?', 'What does Bell\'s theorem actually rule out?', 'Why doesn\'t decoherence solve the measurement problem?'],
+    ch5: ['What is Kastrup\'s best response to the brain damage objection?', 'How does the dissociation model avoid panpsychism\'s combination problem?', 'What would it mean to falsify analytic idealism?'],
+    ch6: ['Is IIT actually panpsychist or something else?', 'How does Hoffman\'s conscious agent theory relate to Kastrup?', 'What does the Fitness-Beats-Truth theorem actually establish?'],
+    ch7: ['Is the Perennial Philosophy argument from convergence actually strong?', 'What is Schopenhauer\'s best argument in The World as Will and Representation?', 'Does the reducing valve metaphor do real philosophical work?'],
+    ch8: ['Which objection to idealism do you find hardest to answer?', 'Can idealism ever be falsified?', 'Is the parsimony argument for idealism actually sound?'],
+    ch8b: ['Is the Chinese Room argument actually decisive against AI consciousness?', 'Does the Hard Problem apply symmetrically to AI and to biological brains?', 'What would it take to have justified confidence that an AI system has experience?'],
+    ch9: ['Is there any physics that directly supports idealism?', 'What would it actually look like if dark energy were connected to consciousness?', 'Is fine-tuning evidence for idealism or just for a multiverse?'],
+    ch10: ['Explain the Born rule in simple terms', 'What is the difference between entanglement and classical correlation?', 'Why is decoherence on such a fast timescale?']
+  };
+  
+  const s = suggestions[currentChapter.id] || suggestions.ch0;
+  return s.map(q => `<button class="chat-suggestion" onclick="sendSuggestion(this)">${q}</button>`).join('');
+}
+
+function sendSuggestion(btn) {
+  const text = btn.textContent;
+  document.getElementById('chatInput').value = text;
+  sendMessage();
+}
+
+/* ══════════════════════════════════════════════════════
+   API KEY
+══════════════════════════════════════════════════════ */
+function initApiKey() {
+  // Check for stored key
+}
+
+function checkApiKey() {
+  const key = localStorage.getItem('anthropic_key');
+  const setupEl = document.getElementById('apiSetup');
+  const inputRow = document.getElementById('chatInputRow');
+  if (!key) {
+    setupEl.style.display = 'block';
+    inputRow.style.display = 'none';
+  } else {
+    setupEl.style.display = 'none';
+    inputRow.style.display = 'flex';
+  }
+}
+
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (val && val.startsWith('sk-')) {
+    localStorage.setItem('anthropic_key', val);
+    checkApiKey();
+  } else {
+    alert('Please enter a valid Anthropic API key (starts with sk-ant- or sk-)');
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   CHAT MESSAGES
+══════════════════════════════════════════════════════ */
+function handleInputKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const apiKey = localStorage.getItem('anthropic_key');
+  if (!apiKey) { checkApiKey(); openChat(); return; }
+  
+  // Clear empty state
+  const msgs = document.getElementById('chatMessages');
+  const empty = msgs.querySelector('.chat-empty');
+  if (empty) empty.remove();
+  
+  // Append user message
+  appendMessage('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  conversationHistory.push({ role: 'user', content: text });
+  
+  // Show typing
+  const typingEl = showTyping();
+  isLoading = true;
+  document.getElementById('chatSendBtn').disabled = true;
+  
+  // Build system prompt
+  const systemPrompt = buildSystemPrompt();
+  
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: conversationHistory
+      })
+    });
+    
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || 'No response received.';
+    
+    typingEl.remove();
+    appendMessage('assistant', reply);
+    conversationHistory.push({ role: 'assistant', content: reply });
+    
+  } catch (err) {
+    typingEl.remove();
+    appendMessage('assistant', `I encountered an error: ${err.message}. Please check your API key in the chat settings.`);
+  }
+  
+  isLoading = false;
+  document.getElementById('chatSendBtn').disabled = false;
+}
+
+function buildSystemPrompt() {
+  let prompt = `You are a rigorous, intellectually honest philosophical guide helping a reader work through the ideas in "Mind as Ground," an in-depth explainer on idealism, consciousness, dark energy, and the structure of reality.
+
+Your role is to deepen understanding, not to advocate for any position. You present arguments fairly, acknowledge genuine difficulties, and treat the reader as an intelligent adult. You are NOT trying to convert the reader to idealism — you are helping them understand the landscape clearly so they can form their own view.
+
+The explainer covers:
+- The five major metaphysical frameworks (materialism, dualism, panpsychism, neutral monism, idealism)
+- The Hard Problem of consciousness (Chalmers, qualia, the zombie argument, Mary's Room)
+- Kastrup's analytic idealism (dissociation model, the whirlpool analogy)
+- Dark energy, the cosmological constant problem, and the Hubble tension (including JWST 2023 confirmation)
+- The quantum measurement problem, Bell's theorem, entanglement, and the von Neumann-Wigner interpretation
+- Donald Hoffman's conscious agent theory and the Fitness-Beats-Truth theorem
+- Christof Koch and Integrated Information Theory (IIT / Phi)
+- Schopenhauer's Will and Representation
+- Huxley's Perennial Philosophy and the reducing valve metaphor
+- Arguments for and against idealism (the intersubjective consistency problem, the brain damage objection, unfalsifiability concerns)
+- Fine-tuning, the anthropic principle, and the connection between dark energy and consciousness
+
+The reader's specific interlocutors are: Bernardo Kastrup, Donald Hoffman, Christof Koch, Aldous Huxley, and Arthur Schopenhauer.
+
+When discussing mathematics, explain every symbol and give a plain-language interpretation after the formal statement. The reader is intelligent but not a specialist in physics or mathematics.
+
+Be concise but thorough. Prefer one precise paragraph to three vague ones. Do not use excessive hedging. If you don't know something, say so.`;
+
+  if (currentChapter) {
+    prompt += `\n\nThe reader is currently on: Chapter ${currentChapter.num} — "${currentChapter.title}" (${currentChapter.subtitle}). Ground your answers in this chapter's content where relevant, but draw freely on other chapters when the question requires it.`;
+  }
+  
+  return prompt;
+}
+
+function appendMessage(role, content) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `chat-message ${role}`;
+  div.innerHTML = `<div class="msg-bubble">${formatMessage(content)}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function formatMessage(text) {
+  // Basic markdown-ish formatting
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code>$1</code>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    .replace(/^/, '<p>')
+    .replace(/$/, '</p>');
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-message assistant';
+  div.innerHTML = `<div class="typing-indicator">
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+  </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+/* ══════════════════════════════════════════════════════
+   READING PROGRESS
+══════════════════════════════════════════════════════ */
+function initProgressBar() {
+  window.addEventListener('scroll', () => {
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
+    document.getElementById('progressBar').style.width = progress + '%';
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   MAKE SENDSUGGESTION GLOBAL
+══════════════════════════════════════════════════════ */
+window.sendSuggestion = sendSuggestion;
+window.saveApiKey = saveApiKey;
+
+/* ══════════════════════════════════════════════════════
+   INTERACTIVE ELEMENTS
+══════════════════════════════════════════════════════ */
+function initInteractives() {
+  initLogScale();
+  initFrameworkDiagram();
+}
+
+/* ── LOG SCALE NAVIGATOR ── */
+function initLogScale() {
+  const canvas = document.getElementById('log-scale-canvas');
+  const vp = document.getElementById('log-scale-viewport');
+  if (!canvas || !vp) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const H = 220;
+
+  const minExp = -35;
+  const maxExp = 100;
+  let pxPerOrder = 28;
+
+  const references = [
+    { exp: -35, label: 'Planck length', sub: '(m)', highlight: false },
+    { exp: -27, label: 'Observed dark energy', sub: '~10\u207B\u00B2\u2077 kg/m\u00B3', highlight: 'observed' },
+    { exp: -15, label: 'Atomic nucleus', sub: '(m)', highlight: false },
+    { exp: -10, label: 'Atom', sub: '(m)', highlight: false },
+    { exp: 0, label: 'Human scale', sub: '1 metre', highlight: false },
+    { exp: 7, label: 'Earth diameter', sub: '(m)', highlight: false },
+    { exp: 11, label: 'Sun diameter', sub: '(m)', highlight: false },
+    { exp: 21, label: 'Milky Way', sub: '(diameter, m)', highlight: false },
+    { exp: 26, label: 'Observable universe', sub: '(diameter, m)', highlight: false },
+    { exp: 80, label: 'Atoms in universe', sub: '~10\u2078\u2070', highlight: false },
+    { exp: 93, label: 'QFT vacuum prediction', sub: '~10\u2079\u00B3 g/cm\u00B3', highlight: 'predicted' }
+  ];
+
+  function getCanvasWidth() { return (maxExp - minExp) * pxPerOrder; }
+
+  function render() {
+    const cw = getCanvasWidth();
+    canvas.width = cw * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = cw + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, cw, H);
+
+    const baseY = 150;
+
+    // Baseline
+    ctx.strokeStyle = 'rgba(24,21,15,0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, baseY); ctx.lineTo(cw, baseY); ctx.stroke();
+
+    // Gap highlight band between observed and predicted
+    const obsX = ((-27) - minExp) * pxPerOrder;
+    const predX = (93 - minExp) * pxPerOrder;
+    ctx.fillStyle = 'rgba(154,123,46,0.04)';
+    ctx.fillRect(obsX, 0, predX - obsX, H);
+
+    // Tick marks
+    for (let e = minExp; e <= maxExp; e++) {
+      const x = (e - minExp) * pxPerOrder;
+      const isMajor = e % 10 === 0;
+      const isMid = e % 5 === 0;
+      ctx.strokeStyle = isMajor ? 'rgba(24,21,15,0.3)' : 'rgba(24,21,15,0.1)';
+      ctx.lineWidth = isMajor ? 1 : 0.5;
+      const tickH = isMajor ? 14 : (isMid ? 8 : 4);
+      ctx.beginPath(); ctx.moveTo(x, baseY - tickH); ctx.lineTo(x, baseY + tickH); ctx.stroke();
+
+      if (isMajor) {
+        ctx.fillStyle = '#7a6e5a';
+        ctx.font = '10px "DM Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('10' + (e < 0 ? '\u207B' : '') + superscriptDigits(Math.abs(e)), x, baseY + 28);
+      }
+    }
+
+    // Reference points
+    references.forEach(function(ref) {
+      const x = (ref.exp - minExp) * pxPerOrder;
+      if (ref.highlight === 'observed') {
+        ctx.strokeStyle = '#9a7b2e';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.moveTo(x, 10); ctx.lineTo(x, baseY - 2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#9a7b2e';
+        ctx.font = 'bold 11px "DM Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(ref.label, x, 28);
+        ctx.font = '9px "DM Mono", monospace';
+        ctx.fillText(ref.sub, x, 42);
+      } else if (ref.highlight === 'predicted') {
+        ctx.strokeStyle = '#7d3020';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.moveTo(x, 10); ctx.lineTo(x, baseY - 2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#7d3020';
+        ctx.font = 'bold 11px "DM Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(ref.label, x, 28);
+        ctx.font = '9px "DM Mono", monospace';
+        ctx.fillText(ref.sub, x, 42);
+      } else {
+        ctx.strokeStyle = 'rgba(24,21,15,0.2)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath(); ctx.moveTo(x, 55); ctx.lineTo(x, baseY - 2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#7a6e5a';
+        ctx.font = '9px "DM Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(ref.label, x, 70);
+        if (ref.sub) {
+          ctx.fillStyle = '#b5a990';
+          ctx.font = '8px "DM Mono", monospace';
+          ctx.fillText(ref.sub, x, 82);
+        }
+      }
+    });
+
+    // Gap label
+    const gapCenterX = (obsX + predX) / 2;
+    ctx.fillStyle = 'rgba(154,123,46,0.6)';
+    ctx.font = '10px "DM Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('\u2190 120 orders of magnitude \u2192', gapCenterX, baseY + 50);
+
+    // Scale indicator
+    ctx.fillStyle = '#b5a990';
+    ctx.font = '8px "DM Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('drag to scroll \u00b7 each tick = one power of 10', 10, H - 8);
+  }
+
+  function superscriptDigits(n) {
+    var supers = ['\u2070','\u00B9','\u00B2','\u00B3','\u2074','\u2075','\u2076','\u2077','\u2078','\u2079'];
+    return String(n).split('').map(function(d) { return supers[parseInt(d)]; }).join('');
+  }
+
+  // Drag to pan
+  var isDragging = false, startX = 0, scrollStart = 0;
+  vp.addEventListener('mousedown', function(e) {
+    isDragging = true; startX = e.pageX; scrollStart = vp.scrollLeft;
+    vp.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', function() {
+    isDragging = false; vp.style.cursor = 'grab';
+  });
+  window.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    vp.scrollLeft = scrollStart - (e.pageX - startX);
+  });
+  vp.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].pageX; scrollStart = vp.scrollLeft;
+  }, { passive: true });
+  vp.addEventListener('touchmove', function(e) {
+    vp.scrollLeft = scrollStart - (e.touches[0].pageX - startX);
+  }, { passive: true });
+
+  window.logScrollTo = function(exp) {
+    var targetLeft = (exp - minExp) * pxPerOrder - vp.clientWidth / 2;
+    vp.scrollTo({ left: targetLeft, behavior: 'smooth' });
+  };
+
+  window.logZoom = function(dir) {
+    var centerExp = (vp.scrollLeft + vp.clientWidth / 2) / pxPerOrder + minExp;
+    pxPerOrder = Math.max(8, Math.min(80, pxPerOrder + dir * 6));
+    render();
+    vp.scrollLeft = (centerExp - minExp) * pxPerOrder - vp.clientWidth / 2;
+  };
+
+  window.logFitAll = function() {
+    pxPerOrder = Math.max(8, Math.floor(vp.clientWidth / (maxExp - minExp)));
+    render();
+    vp.scrollLeft = 0;
+  };
+
+  render();
+  // Start scrolled to observed value
+  setTimeout(function() { window.logScrollTo(-27); }, 100);
+}
+
+/* ── FRAMEWORK DIAGRAM ── */
+function initFrameworkDiagram() {
+  var svg = document.getElementById('framework-svg');
+  if (!svg) return;
+
+  var frameworks = [
+    { id: 'materialism', name: 'Materialism', problem: 'Hard Problem: cannot explain subjective experience' },
+    { id: 'dualism', name: 'Dualism', problem: 'Interaction Problem: how do mind and matter causally connect?' },
+    { id: 'panpsychism', name: 'Panpsychism', problem: 'Combination Problem: how do micro-experiences unify?' },
+    { id: 'neutral', name: 'Neutral\nMonism', problem: 'Underspecified: what is the neutral stuff, exactly?' },
+    { id: 'idealism', name: 'Idealism', problem: 'Consistency Problem: why does the world seem so physical?' }
+  ];
+
+  var spectrumPos = [
+    { x: 80, y: 155 },
+    { x: 230, y: 155 },
+    { x: 370, y: 155 },
+    { x: 510, y: 155 },
+    { x: 660, y: 155 }
+  ];
+
+  var networkPos = [
+    { x: 120, y: 70 },
+    { x: 620, y: 70 },
+    { x: 660, y: 230 },
+    { x: 370, y: 280 },
+    { x: 80, y: 230 }
+  ];
+
+  var edges = [
+    { from: 0, to: 1, label: 'Descartes split mind from matter' },
+    { from: 0, to: 2, label: 'Both keep matter fundamental' },
+    { from: 1, to: 2, label: 'Both take consciousness seriously' },
+    { from: 2, to: 3, label: 'Both reject pure physicalism' },
+    { from: 2, to: 4, label: 'Consciousness is fundamental' },
+    { from: 3, to: 4, label: 'Neutral stuff may be experiential' },
+    { from: 0, to: 4, label: 'Inversion: opposite starting points', special: true }
+  ];
+
+  var currentView = 'spectrum';
+  var selectedNode = null;
+
+  function renderSVG() {
+    var pos = currentView === 'spectrum' ? spectrumPos : networkPos;
+    var html = '';
+
+    if (currentView === 'spectrum') {
+      // Axis line
+      html += '<line x1="40" y1="230" x2="700" y2="230" stroke="rgba(24,21,15,0.15)" stroke-width="1"/>';
+      // Axis gradient
+      html += '<defs><linearGradient id="axGrad" x1="0" y1="0" x2="1" y2="0">';
+      html += '<stop offset="0%" stop-color="#304050"/><stop offset="100%" stop-color="#9a7b2e"/>';
+      html += '</linearGradient></defs>';
+      html += '<rect x="40" y="228" width="660" height="4" fill="url(#axGrad)" rx="2"/>';
+      // Labels
+      html += '<text x="40" y="256" font-family="DM Mono, monospace" font-size="8" fill="#7a6e5a" letter-spacing="0.1em" text-transform="uppercase">ONLY MATTER</text>';
+      html += '<text x="700" y="256" font-family="DM Mono, monospace" font-size="8" fill="#7a6e5a" letter-spacing="0.1em" text-anchor="end">ONLY MIND</text>';
+      // Connecting line through nodes
+      html += '<line x1="' + pos[0].x + '" y1="' + pos[0].y + '" x2="' + pos[4].x + '" y2="' + pos[4].y + '" stroke="rgba(24,21,15,0.08)" stroke-width="2"/>';
+    }
+
+    if (currentView === 'network') {
+      // Draw edges
+      edges.forEach(function(edge, idx) {
+        var fromP = pos[edge.from];
+        var toP = pos[edge.to];
+        var isConnected = selectedNode !== null && (edge.from === selectedNode || edge.to === selectedNode);
+        var opacity = selectedNode === null ? 0.25 : (isConnected ? 0.7 : 0.06);
+        var color = edge.special ? '#7d3020' : '#304050';
+        var sw = isConnected ? 2 : 1;
+        html += '<line x1="' + fromP.x + '" y1="' + fromP.y + '" x2="' + toP.x + '" y2="' + toP.y + '" stroke="' + color + '" stroke-width="' + sw + '" opacity="' + opacity + '"/>';
+
+        // Edge label on selection
+        if (isConnected) {
+          var mx = (fromP.x + toP.x) / 2;
+          var my = (fromP.y + toP.y) / 2 - 8;
+          html += '<rect x="' + (mx - 80) + '" y="' + (my - 10) + '" width="160" height="16" rx="3" fill="white" opacity="0.92"/>';
+          html += '<text x="' + mx + '" y="' + (my + 1) + '" text-anchor="middle" font-family="DM Mono, monospace" font-size="7.5" fill="#304050" letter-spacing="0.03em">' + edge.label + '</text>';
+        }
+      });
+    }
+
+    // Draw nodes
+    frameworks.forEach(function(fw, i) {
+      var p = pos[i];
+      var isIdeal = (i === 4);
+      var isSelected = (selectedNode === i);
+      var isDimmed = selectedNode !== null && !isSelected && currentView === 'network';
+
+      // Check if connected to selected
+      if (isDimmed && selectedNode !== null) {
+        edges.forEach(function(edge) {
+          if ((edge.from === selectedNode && edge.to === i) || (edge.to === selectedNode && edge.from === i)) {
+            isDimmed = false;
+          }
+        });
+      }
+
+      var nodeOpacity = isDimmed ? 0.25 : 1;
+      var fill = isIdeal ? 'rgba(154,123,46,0.08)' : '#f4efe6';
+      var stroke = isSelected ? '#9a7b2e' : (isIdeal ? '#9a7b2e' : 'rgba(24,21,15,0.28)');
+      var sw = isSelected ? 3 : 2;
+      var textColor = isIdeal ? '#9a7b2e' : '#304050';
+
+      html += '<g data-fw="' + i + '" style="cursor:pointer" opacity="' + nodeOpacity + '">';
+      html += '<circle cx="' + p.x + '" cy="' + p.y + '" r="32" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+
+      // Multi-line text
+      var lines = fw.name.split('\n');
+      if (lines.length === 1) {
+        html += '<text x="' + p.x + '" y="' + (p.y + 4) + '" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="11.5" font-weight="600" fill="' + textColor + '">' + lines[0] + '</text>';
+      } else {
+        html += '<text x="' + p.x + '" y="' + (p.y - 3) + '" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="11" font-weight="600" fill="' + textColor + '">' + lines[0] + '</text>';
+        html += '<text x="' + p.x + '" y="' + (p.y + 10) + '" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="11" font-weight="600" fill="' + textColor + '">' + lines[1] + '</text>';
+      }
+
+      // Problem label below node when selected
+      if (isSelected) {
+        var py = p.y + 46;
+        html += '<rect x="' + (p.x - 90) + '" y="' + (py - 10) + '" width="180" height="16" rx="3" fill="rgba(154,123,46,0.1)"/>';
+        html += '<text x="' + p.x + '" y="' + (py + 1) + '" text-anchor="middle" font-family="DM Mono, monospace" font-size="7.5" fill="#9a7b2e" letter-spacing="0.03em">' + fw.problem + '</text>';
+      }
+
+      html += '</g>';
+    });
+
+    svg.innerHTML = html;
+
+    // Attach click listeners
+    svg.querySelectorAll('[data-fw]').forEach(function(g) {
+      g.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var idx = parseInt(g.getAttribute('data-fw'));
+        selectedNode = (selectedNode === idx) ? null : idx;
+        renderSVG();
+        updateCaption();
+      });
+    });
+  }
+
+  function updateCaption() {
+    var cap = document.getElementById('fw-caption');
+    if (!cap) return;
+    if (selectedNode !== null) {
+      cap.textContent = frameworks[selectedNode].name.replace('\n', ' ') + ' \u2014 ' + frameworks[selectedNode].problem;
+    } else if (currentView === 'spectrum') {
+      cap.textContent = 'Five frameworks arranged from "only matter" to "only mind." Click any node for details.';
+    } else {
+      cap.textContent = 'Lines show intellectual relationships between frameworks. Click any node to highlight its connections.';
+    }
+  }
+
+  svg.addEventListener('click', function() {
+    if (selectedNode !== null) {
+      selectedNode = null;
+      renderSVG();
+      updateCaption();
+    }
+  });
+
+  window.fwShowSpectrum = function() {
+    currentView = 'spectrum';
+    selectedNode = null;
+    document.getElementById('fw-spectrum-btn').classList.add('active');
+    document.getElementById('fw-network-btn').classList.remove('active');
+    svg.classList.add('fading');
+    setTimeout(function() {
+      renderSVG();
+      updateCaption();
+      svg.classList.remove('fading');
+    }, 150);
+  };
+
+  window.fwShowNetwork = function() {
+    currentView = 'network';
+    selectedNode = null;
+    document.getElementById('fw-network-btn').classList.add('active');
+    document.getElementById('fw-spectrum-btn').classList.remove('active');
+    svg.classList.add('fading');
+    setTimeout(function() {
+      renderSVG();
+      updateCaption();
+      svg.classList.remove('fading');
+    }, 150);
+  };
+
+  renderSVG();
+}
+</script>
+</body>
+</html>
